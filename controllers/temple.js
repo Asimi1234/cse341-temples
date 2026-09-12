@@ -4,9 +4,21 @@ const Temple = db.temples;
 const apiKey = process.env.API_KEY;
 
 exports.create = (req, res) => {
-  // Validate request
-  if (!req.body.name) {
-    res.status(400).send({ message: 'Content can not be empty!' });
+  // Validate request — all fields are required
+  const required = [
+    'temple_id',
+    'name',
+    'location',
+    'dedicated',
+    'additionalInfo',
+  ];
+  const missing = required.filter(
+    (field) => req.body[field] === undefined || req.body[field] === ''
+  );
+  if (missing.length > 0) {
+    res
+      .status(400)
+      .send({ message: 'Missing required fields: ' + missing.join(', ') });
     return;
   }
 
@@ -20,9 +32,10 @@ exports.create = (req, res) => {
   });
   // Save Temple in the database
   temple
-    .save(temple)
+    .save()
     .then((data) => {
-      res.send(data);
+      // Return the new temple's id
+      res.status(201).json({ id: data._id });
     })
     .catch((err) => {
       res.status(500).send({
@@ -97,7 +110,7 @@ exports.update = (req, res) => {
         res.status(404).send({
           message: `Cannot update Temple with temple_id=${temple_id}. Maybe it was not found!`,
         });
-      } else res.send(data);
+      } else res.status(204).send();
     })
     .catch((err) => {
       res.status(500).send({
@@ -117,9 +130,7 @@ exports.delete = (req, res) => {
           message: `Cannot delete Temple with temple_id=${temple_id}. Maybe it was not found!`,
         });
       } else {
-        res.send({
-          message: 'Temple was deleted successfully!',
-        });
+        res.status(204).send();
       }
     })
     .catch((err) => {

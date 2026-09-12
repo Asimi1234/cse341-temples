@@ -1,0 +1,73 @@
+### Temples API — REST Client test file
+### Usage: install the "REST Client" VS Code extension, then click
+### "Send Request" above any request below.
+###
+### Switch between local and published by changing @baseUrl:
+@localUrl = http://localhost:8080
+@renderUrl = https://cse341-temples.onrender.com
+@baseUrl = {{localUrl}}
+
+### apiKey is required for the two GET routes (sent as a header)
+@apiKey = Ezl0961tEpx2UxTZ5v2uKFK91qdNAr5npRlMT1zLcE3Mg68Xwaj3N8Dyp1R8IvFenrVwHRllOUxF0Og00l0m9NcaYMtH6Bpgdv7N
+
+############################################################
+# GET — all temples (expect 200 + array)
+############################################################
+GET {{baseUrl}}/temples/
+apiKey: {{apiKey}}
+
+############################################################
+# GET — one temple by temple_id (expect 200 + single temple)
+############################################################
+GET {{baseUrl}}/temples/1
+apiKey: {{apiKey}}
+
+############################################################
+# POST — create a new temple (expect 201 + { "id": ... })
+# All fields are required.
+############################################################
+POST {{baseUrl}}/temples/
+Content-Type: application/json
+
+{
+  "temple_id": 9999,
+  "name": "Test Temple",
+  "location": "Rexburg, Idaho",
+  "dedicated": "12 September 2026",
+  "additionalInfo": true
+}
+
+############################################################
+# PUT — update the temple created above (expect 204 No Content)
+############################################################
+PUT {{baseUrl}}/temples/9999
+Content-Type: application/json
+
+{
+  "name": "Updated Test Temple",
+  "location": "Salt Lake City, Utah"
+}
+
+############################################################
+# DELETE — remove the test temple (expect 204 No Content)
+############################################################
+DELETE {{baseUrl}}/temples/9999
+
+############################################################
+# NEGATIVE TESTS
+############################################################
+
+### GET without apiKey (expect rejection message)
+GET {{baseUrl}}/temples/1
+
+### GET a temple that does not exist (expect 404)
+GET {{baseUrl}}/temples/424242
+apiKey: {{apiKey}}
+
+### POST missing required fields (expect 400 + list of missing fields)
+POST {{baseUrl}}/temples/
+Content-Type: application/json
+
+{
+  "name": "Incomplete Temple"
+}
