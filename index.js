@@ -13,12 +13,15 @@ app
     (req, res, next) => {
       // Point Swagger "Try it out" at whatever host/protocol served this
       // request — localhost:8080 in dev, your Render URL in production.
+      // serveFiles + setup() read req.swaggerDoc fresh on every request,
+      // so these per-request values actually take effect.
       swaggerDocument.host = req.get('host');
       swaggerDocument.schemes = [req.headers['x-forwarded-proto'] || 'http'];
+      req.swaggerDoc = swaggerDocument;
       next();
     },
-    swaggerUi.serve,
-    swaggerUi.setup(swaggerDocument)
+    swaggerUi.serveFiles(swaggerDocument),
+    swaggerUi.setup()
   )
   .use('/', require('./routes'));
 
